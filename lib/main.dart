@@ -1,6 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:provider/provider.dart';
+
+import 'LogInScreen.dart';
+import 'UserState.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -9,6 +13,7 @@ void main() {
 
 class App extends StatelessWidget {
   final Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -32,11 +37,13 @@ class App extends StatelessWidget {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Startup Name Generator',
-      theme: ThemeData(primaryColor: Colors.red[900]),
-      home: RandomWords(),
-    );
+    return ChangeNotifierProvider(
+        create: (_) => UserState.instance(),
+        child: MaterialApp(
+          title: 'Startup Name Generator',
+          theme: ThemeData(primaryColor: Colors.red[900]),
+          home: RandomWords(),
+        ));
   }
 }
 
@@ -52,12 +59,16 @@ class _RandomWordsState extends State<RandomWords> {
 
   @override
   Widget build(BuildContext context) {
+    UserState userState = context.watch<UserState>();
+    var loggingIcon =
+        userState.isAuthenticated() ? Icons.exit_to_app : Icons.login;
     return Scaffold(
       appBar: AppBar(
         title: Text('Startup Name Generator'),
         actions: [
           IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
-          IconButton(icon: Icon(Icons.login), onPressed: _pushLogin)
+          IconButton(
+              icon: Icon(loggingIcon), onPressed: () => _pushLogin(userState))
         ],
       ),
       body: _buildSuggestions(),
@@ -102,51 +113,15 @@ class _RandomWordsState extends State<RandomWords> {
     );
   }
 
-  void _pushLogin() {
-    Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (BuildContext context) {
-      final emailField =
-      TextField(decoration: InputDecoration(labelText: 'Email'));
-      final passwordField = TextField(
-        obscureText: true,
-        decoration: InputDecoration(labelText: 'Password'),
-      );
-      return Scaffold(
-          appBar: AppBar(
-            title: Text('Login'),
-            centerTitle: true,
-          ),
-          backgroundColor: Colors.white,
-          body: Builder(
-            builder: (context) => Padding(
-              padding: EdgeInsets.all(30.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text('Welcome to Startup Names Generator, please log in below'),
-                  SizedBox(height: 10),
-                  emailField,
-                  SizedBox(height: 10,),
-                  passwordField, SizedBox(height: 10),
-                  _getLogInButton(context)
-                ],
-              ),
-            ),
-          ));
-    }));
-  }
-
-  ElevatedButton _getLogInButton(BuildContext context) {
-    return ElevatedButton(
-        onPressed: () {
-          final snackBar =
-              SnackBar(content: Text('Login is not implemented yet'));
-          Scaffold.of(context).showSnackBar(snackBar);
-        },
-        child: Text('Log in'),
-        style: ButtonStyle(
-            backgroundColor:
-                MaterialStateProperty.all<Color>(Colors.red[900])));
+  void _pushLogin(UserState userState) {
+    if (userState.isAuthenticated()) {
+      userState.signOut();
+    } else {
+      Navigator.of(context)
+          .push(MaterialPageRoute<void>(builder: (BuildContext context) {
+        return LogInScreen();
+      }));
+    }
   }
 
   void _pushSaved() {
