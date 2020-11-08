@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'UserState.dart';
+import '../UserState.dart';
 
 class LogInScreen extends StatefulWidget {
   @override
