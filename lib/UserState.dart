@@ -7,16 +7,17 @@ enum Status { Authenticated, Authenticating, Unauthenticated }
 class UserState with ChangeNotifier {
   FirebaseAuth _auth;
   User _user;
-  Status _status = Status.Unauthenticated;
+  Status _status;
 
   Status get status => _status;
-
   User get user => _user;
+  String get useId => _user.email;
 
   bool isAuthenticated() => _status == Status.Authenticated;
   bool isAuthenticating() => _status == Status.Authenticating;
 
   UserState.instance() {
+    _status = Status.Unauthenticated;
     _auth = FirebaseAuth.instance;
     _auth.authStateChanges().listen(_onAuthStateChanged);
   }
@@ -44,7 +45,7 @@ class UserState with ChangeNotifier {
     }
   }
 
-  Future signOut() async {
+  Future singOut() async {
     _auth.signOut();
     _status = Status.Unauthenticated;
     notifyListeners();
