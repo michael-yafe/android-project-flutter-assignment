@@ -26,7 +26,7 @@ class _RandomWordsState extends State<RandomWords> {
         actions: [
           IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
           IconButton(
-              icon: Icon(loggingIcon), onPressed: () => _pushLogin(userState))
+              icon: Icon(loggingIcon), onPressed: () => _pushLoginOrLogOut(userState))
         ],
       ),
       body: _buildSuggestions(),
@@ -73,7 +73,7 @@ class _RandomWordsState extends State<RandomWords> {
     });
   }
 
-  void _pushLogin(UserState userState) {
+  void _pushLoginOrLogOut(UserState userState) {
     if (userState.isAuthenticated()) {
       userState.singOut();
       Provider.of<UserFavorites>(context, listen: false).clear();
