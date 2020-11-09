@@ -41,11 +41,11 @@ class UserFavorites with ChangeNotifier {
     _firestore = FirebaseFirestore.instance;
   }
 
-  void addFavorite(String name) async {
+  void addFavorite(String name)  {
     _favoritesSet.add(name);
     notifyListeners();
     if (_userState.isAuthenticated()) {
-      await updateFavoritesAtCloud();
+       updateFavoritesAtCloud();
     }
   }
 
@@ -55,9 +55,9 @@ class UserFavorites with ChangeNotifier {
     );
   }
 
-  void removeFavorite(String name) async {
+  void removeFavorite(String name)  {
     _favoritesSet.remove(name);
     notifyListeners();
-    if (_userState.isAuthenticated()) await updateFavoritesAtCloud();
+    if (_userState.isAuthenticated()) updateFavoritesAtCloud();
   }
 }
