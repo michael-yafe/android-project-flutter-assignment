@@ -28,8 +28,8 @@ class UserFavorites with ChangeNotifier {
       if (snapshot.exists) {
         _favoritesSet.addAll(snapshot.data()['favorites'].cast<String>());
         notifyListeners();
-        updateFavoritesAtCloud();
       }
+      updateFavoritesAtCloud();
     });
   }
 
