@@ -45,6 +45,10 @@ class UserState with ChangeNotifier {
     }
   }
 
+  Future<void> singUp(String email, String password) async{
+       await _auth.createUserWithEmailAndPassword(email: email, password: password);
+  }
+
   Future singOut() async {
     _auth.signOut();
     _status = Status.Unauthenticated;

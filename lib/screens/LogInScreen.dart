@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hello_me/common/them.dart';
 import 'package:provider/provider.dart';
 import '../UserState.dart';
 
@@ -10,6 +11,9 @@ class LogInScreen extends StatefulWidget {
 class _LogInScreenState extends State<LogInScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  var _isPasswordMatch = true;
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +50,8 @@ class _LogInScreenState extends State<LogInScreen> {
                 SizedBox(height: 10),
                 userState.isAuthenticating()
                     ? Center(child: CircularProgressIndicator())
-                    : _getLogInButton(context, userState)
+                    : _getLogInButton(context, userState),
+                _getRegisterButton(context)
               ],
             ),
           ),
@@ -60,7 +65,8 @@ class _LogInScreenState extends State<LogInScreen> {
               _emailController.text, _passwordController.text)) {
             Navigator.pop(context);
           } else {
-            final snackBar = SnackBar(content: Text('There was an error logging into the app'));
+            final snackBar = SnackBar(
+                content: Text('There was an error logging into the app'));
             Scaffold.of(context).showSnackBar(snackBar);
           }
         },
@@ -70,10 +76,65 @@ class _LogInScreenState extends State<LogInScreen> {
                 MaterialStateProperty.all<Color>(Colors.red[900])));
   }
 
+  ElevatedButton _getRegisterButton(BuildContext context) => ElevatedButton(
+      child: Text(
+        "New user? Click to sign up",
+      ),
+      onPressed: () {
+        showModalBottomSheet<void>(
+            context: context,
+            builder: (context) => SingleChildScrollView(
+                  padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      children: [
+                        Text("Please confirm your password bellow:"),
+                        Divider(),
+                        TextField(
+                          controller: _confirmPasswordController,
+                          decoration: InputDecoration(
+                              labelText: "Password",
+                              errorText: _isPasswordMatch
+                                  ? null
+                                  : "Passwords Must match"),
+                        ),
+                        ElevatedButton(
+                          onPressed: () async {
+                            setState(() {
+                              _isPasswordMatch =
+                                  _confirmPasswordController.text ==
+                                      _passwordController.text;
+                            });
+                            FocusScope.of(context).unfocus();
+                            if (_isPasswordMatch) {
+                              await Provider.of<UserState>(context,
+                                      listen: false)
+                                  .singUp(_emailController.text,
+                                      _passwordController.text);
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            }
+                          },
+                          child: Text(
+                            "Confirm",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: greenButton,
+                        )
+                      ],
+                    ),
+                  ),
+                ));
+      },
+      style: greenButton);
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 }
