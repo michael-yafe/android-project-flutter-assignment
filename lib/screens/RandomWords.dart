@@ -1,6 +1,8 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
+import 'package:hello_me/common/them.dart';
 import 'package:hello_me/screens/FavoritesScreen.dart';
+import 'package:snapping_sheet/snapping_sheet.dart';
 import 'LogInScreen.dart';
 import '../UserFavorites.dart';
 import '../UserState.dart';
@@ -12,6 +14,7 @@ class RandomWords extends StatefulWidget {
 }
 
 class _RandomWordsState extends State<RandomWords> {
+  var _controller = SnappingSheetController();
   final List<WordPair> _suggestions = <WordPair>[];
   final TextStyle _biggerFont = const TextStyle(fontSize: 18);
 
@@ -21,16 +24,48 @@ class _RandomWordsState extends State<RandomWords> {
     var loggingIcon =
         userState.isAuthenticated() ? Icons.exit_to_app : Icons.login;
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Startup Name Generator'),
-        actions: [
-          IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
-          IconButton(
-              icon: Icon(loggingIcon), onPressed: () => _pushLoginOrLogOut(userState))
-        ],
-      ),
-      body: _buildSuggestions(),
-    );
+        appBar: AppBar(
+          title: Text('Startup Name Generator'),
+          actions: [
+            IconButton(icon: Icon(Icons.list), onPressed: _pushSaved),
+            IconButton(
+                icon: Icon(loggingIcon),
+                onPressed: () => _pushLoginOrLogOut(userState))
+          ],
+        ),
+        body: userState.isAuthenticated()
+            ? SnappingSheet(
+                child: _buildSuggestions(),
+                sheetBelow: SnappingSheetContent(
+                  child: SheetContent(userState.useId),
+                  heightBehavior: SnappingSheetHeight.fit(),
+                ),
+                snappingSheetController: _controller,
+                grabbing: GestureDetector(
+                  child: GrabSection(userState.useId),
+                  onTap: () {
+                    if (_controller.snapPositions.last !=
+                        _controller.currentSnapPosition) {
+                      _controller
+                          .snapToPosition(_controller.snapPositions.last);
+                    } else {
+                      _controller
+                          .snapToPosition(_controller.snapPositions.first);
+                    }
+                  },
+                ),
+                snapPositions: const [
+                  SnapPosition(
+                      positionFactor: 0,
+                      snappingCurve: Curves.elasticOut,
+                      snappingDuration: Duration(milliseconds: 500)),
+                  SnapPosition(
+                      positionPixel: 100,
+                      snappingCurve: Curves.ease,
+                      snappingDuration: Duration(milliseconds: 750))
+                ],
+              )
+            : _buildSuggestions());
   }
 
   Widget _buildSuggestions() {
@@ -91,6 +126,69 @@ class _RandomWordsState extends State<RandomWords> {
         builder: (BuildContext context) {
           return FavoritesScreen();
         }, // ...to here.
+      ),
+    );
+  }
+}
+
+class GrabSection extends StatelessWidget {
+  final String _userName;
+
+  GrabSection(this._userName);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        color: Colors.grey[200],
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(children: [
+            Expanded(child: Text("Welcome back, $_userName")),
+            Icon(Icons.keyboard_arrow_up_outlined)
+          ]),
+        ));
+  }
+}
+
+class SheetContent extends StatelessWidget {
+  final String _userName;
+
+  SheetContent(this._userName);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      height: 50,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Container(
+                color: Colors.blue,
+                width: 60,
+                height: 60,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text("$_userName",style: TextStyle(fontSize: 20),),
+                    ElevatedButton(
+                      onPressed: null,
+                      child: Text(
+                        "Change avatar",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: greenButton,
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
