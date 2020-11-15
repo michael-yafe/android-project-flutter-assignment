@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_me/UserFavorites.dart';
 import 'package:hello_me/common/them.dart';
+import 'package:hello_me/imageService.dart';
 import 'package:hello_me/screens/RandomWords.dart';
 import 'package:provider/provider.dart';
 
@@ -43,8 +44,15 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => UserState.instance()),
         ChangeNotifierProxyProvider<UserState, UserFavorites>(
           create: (_) => UserFavorites.instance(),
-          update: (_, userState, userFavorites)  =>
+          update: (_, userState, userFavorites) =>
               userFavorites.update(userState),
+        ),
+        ChangeNotifierProxyProvider<UserState, ImageService>(
+          create: (_) => ImageService(),
+          update: (_, userState, imageService) {
+            imageService.userState = userState;
+            return imageService;
+          },
         )
       ],
       child: MaterialApp(
