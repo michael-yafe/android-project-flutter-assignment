@@ -60,7 +60,7 @@ class _RandomWordsState extends State<RandomWords> {
                   SnapPosition(
                       positionFactor: 0,
                       snappingCurve: Curves.elasticOut,
-                      snappingDuration: Duration(milliseconds: 500)),
+                      snappingDuration: Duration(milliseconds: 750)),
                   SnapPosition(
                       positionPixel: 100,
                       snappingCurve: Curves.elasticOut,
@@ -168,22 +168,17 @@ class SheetContent extends StatelessWidget {
           child: Row(
             children: [
               Consumer<ImageService>(
-                builder: (context, imageService, _) =>
-                    imageService.imageUrl == null
-                        ? SizedBox.shrink()
-                        : Image.network(imageService.imageUrl,
-                            height: 80,
-                            width: 80, loadingBuilder: (con, child, progress) {
-                            if (progress == null) {
-                              return child;
-                            } else {
-                              return Container(
-                                  height: 80,
-                                  width: 80,
-                                  child: CircularProgressIndicator());
-                            }
-                          }),
-              ),
+                  builder: (context, imageService, _) =>
+                      imageService.imageUrl == null
+                          ? SizedBox.shrink()
+                          : Container(
+                              height: 80,
+                              width: 80,
+                              child: CircleAvatar(
+                                  backgroundColor: Colors.white,
+                                  backgroundImage:
+                                      NetworkImage(imageService.imageUrl)),
+                            )),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
