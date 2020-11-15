@@ -1,6 +1,7 @@
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 enum Status { Authenticated, Authenticating, Unauthenticated }
 
@@ -10,10 +11,13 @@ class UserState with ChangeNotifier {
   Status _status;
 
   Status get status => _status;
+
   User get user => _user;
+
   String get useId => _user.email;
 
   bool isAuthenticated() => _status == Status.Authenticated;
+
   bool isAuthenticating() => _status == Status.Authenticating;
 
   UserState.instance() {
@@ -45,8 +49,9 @@ class UserState with ChangeNotifier {
     }
   }
 
-  Future<void> singUp(String email, String password) async{
-       await _auth.createUserWithEmailAndPassword(email: email, password: password);
+  Future<void> singUp(String email, String password) async {
+    await _auth.createUserWithEmailAndPassword(
+        email: email, password: password);
   }
 
   Future singOut() async {
