@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hello_me/common/them.dart';
 import 'package:provider/provider.dart';
+
 import '../UserState.dart';
 
 class LogInScreen extends StatefulWidget {
@@ -13,7 +14,6 @@ class _LogInScreenState extends State<LogInScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   var _isPasswordMatch = true;
-
 
   @override
   Widget build(BuildContext context) {
@@ -35,26 +35,35 @@ class _LogInScreenState extends State<LogInScreen> {
         ),
         backgroundColor: Colors.white,
         body: Builder(
-          builder: (context) => Padding(
-            padding: EdgeInsets.all(30.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Welcome to Startup Names Generator, please log in below'),
-                SizedBox(height: 10),
-                emailField,
-                SizedBox(
-                  height: 10,
+          builder: (context) =>
+              Padding(
+                padding: EdgeInsets.all(30.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                        'Welcome to Startup Names Generator, please log in below'),
+                    SizedBox(height: 10),
+                    emailField,
+                    SizedBox(
+                      height: 10,
+                    ),
+                    passwordField,
+                    SizedBox(height: 10),
+                    userState.isAuthenticating()
+                        ? Center(child: CircularProgressIndicator())
+                        : _getLogInButton(context, userState),
+                    ElevatedButton(
+                        onPressed: () {
+                          _showBottomSheet(context);
+                        },
+                        child: Text(
+                          "New user? Click to sign up",
+                        ),
+                        style: greenButton)
+                  ],
                 ),
-                passwordField,
-                SizedBox(height: 10),
-                userState.isAuthenticating()
-                    ? Center(child: CircularProgressIndicator())
-                    : _getLogInButton(context, userState),
-                _getRegisterButton(context)
-              ],
-            ),
-          ),
+              ),
         ));
   }
 
@@ -73,62 +82,62 @@ class _LogInScreenState extends State<LogInScreen> {
         child: Text('Log in'),
         style: ButtonStyle(
             backgroundColor:
-                MaterialStateProperty.all<Color>(Colors.red[900])));
+            MaterialStateProperty.all<Color>(Colors.red[900])));
   }
 
-  ElevatedButton _getRegisterButton(BuildContext context) => ElevatedButton(
-      child: Text(
-        "New user? Click to sign up",
-      ),
-      onPressed: () {
-        showModalBottomSheet<void>(
-            context: context,
-            builder: (context) => SingleChildScrollView(
-                  padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      children: [
-                        Text("Please confirm your password bellow:"),
-                        Divider(),
-                        TextField(
-                          controller: _confirmPasswordController,
-                          decoration: InputDecoration(
-                              labelText: "Password",
-                              errorText: _isPasswordMatch
-                                  ? null
-                                  : "Passwords Must match"),
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            setState(() {
-                              _isPasswordMatch =
-                                  _confirmPasswordController.text ==
-                                      _passwordController.text;
-                            });
-                            FocusScope.of(context).unfocus();
-                            if (_isPasswordMatch) {
-                              await Provider.of<UserState>(context,
-                                      listen: false)
-                                  .singUp(_emailController.text,
-                                      _passwordController.text);
-                              Navigator.pop(context);
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: Text(
-                            "Confirm",
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          style: greenButton,
-                        )
-                      ],
+  void _showBottomSheet(BuildContext context) {
+    showModalBottomSheet<void>(
+        context: context,
+        builder: (context) =>
+            SingleChildScrollView(
+              padding: EdgeInsets.only(
+                  bottom: MediaQuery
+                      .of(context)
+                      .viewInsets
+                      .bottom),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  children: [
+                    Text("Please confirm your password bellow:"),
+                    Divider(),
+                    TextField(
+                      obscureText: true,
+                      controller: _confirmPasswordController,
+                      decoration: InputDecoration(
+                          labelText: "Password",
+                          errorText: _isPasswordMatch
+                              ? null
+                              : "Passwords Must match"),
                     ),
-                  ),
-                ));
-      },
-      style: greenButton);
+                    ElevatedButton(
+                      onPressed: () async {
+                        setState(() {
+                          _isPasswordMatch =
+                              _confirmPasswordController.text ==
+                                  _passwordController.text;
+                        });
+                        FocusScope.of(context).unfocus();
+                        if (_isPasswordMatch) {
+                          await Provider.of<UserState>(context,
+                              listen: false)
+                              .singUp(_emailController.text,
+                              _passwordController.text);
+                          Navigator.pop(context);
+                          Navigator.pop(context);
+                        }
+                      },
+                      child: Text(
+                        "Confirm",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: greenButton,
+                    )
+                  ],
+                ),
+              ),
+            ));
+  }
 
   @override
   void dispose() {
