@@ -1,12 +1,14 @@
 import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:hello_me/common/them.dart';
+import 'package:hello_me/imageService.dart';
 import 'package:hello_me/screens/FavoritesScreen.dart';
+import 'package:provider/provider.dart';
 import 'package:snapping_sheet/snapping_sheet.dart';
-import 'LogInScreen.dart';
+
 import '../UserFavorites.dart';
 import '../UserState.dart';
-import 'package:provider/provider.dart';
+import 'LogInScreen.dart';
 
 class RandomWords extends StatefulWidget {
   @override
@@ -61,7 +63,7 @@ class _RandomWordsState extends State<RandomWords> {
                       snappingDuration: Duration(milliseconds: 500)),
                   SnapPosition(
                       positionPixel: 100,
-                      snappingCurve: Curves.ease,
+                      snappingCurve: Curves.elasticOut,
                       snappingDuration: Duration(milliseconds: 750))
                 ],
               )
@@ -165,18 +167,40 @@ class SheetContent extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Row(
             children: [
-              Container(
-                color: Colors.blue,
-                width: 60,
-                height: 60,
+              Consumer<ImageService>(
+                builder: (context, imageService, _) =>
+                    imageService.imageUrl == null
+                        ? SizedBox.shrink()
+                        : Image.network(imageService.imageUrl,
+                            height: 80,
+                            width: 80, loadingBuilder: (con, child, progress) {
+                            if (progress == null) {
+                              return child;
+                            } else {
+                              return Container(
+                                  height: 80,
+                                  width: 80,
+                                  child: CircularProgressIndicator());
+                            }
+                          }),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    Text("$_userName",style: TextStyle(fontSize: 20),),
+                    Text(
+                      "$_userName",
+                      style: TextStyle(fontSize: 20),
+                    ),
                     ElevatedButton(
-                      onPressed: null,
+                      onPressed: () async {
+                        if (!await Provider.of<ImageService>(context,
+                                listen: false)
+                            .pickAndUploadImage()) {
+                          Scaffold.of(context).showSnackBar(
+                              SnackBar(content: Text("No image selected")));
+                        }
+                      },
                       child: Text(
                         "Change avatar",
                         style: TextStyle(color: Colors.white),
