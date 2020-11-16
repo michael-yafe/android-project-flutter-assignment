@@ -35,15 +35,17 @@ class _RandomWordsState extends State<RandomWords> {
                 onPressed: () => _pushLoginOrLogOut(userState))
           ],
         ),
-        body: userState.isAuthenticated()
-            ? SnappingSheet(
-                child: _buildSuggestions(),
-                sheetBelow: SnappingSheetContent(
+        body: SnappingSheet(
+          child: _buildSuggestions(),
+          sheetBelow: userState.isAuthenticated()
+              ? SnappingSheetContent(
                   child: SheetContent(userState.useId),
                   heightBehavior: SnappingSheetHeight.fit(),
-                ),
-                snappingSheetController: _controller,
-                grabbing: GestureDetector(
+                )
+              : null,
+          snappingSheetController: _controller,
+          grabbing: userState.isAuthenticated()
+              ? GestureDetector(
                   child: GrabSection(userState.useId),
                   onTap: () {
                     if (_controller.snapPositions.last !=
@@ -55,19 +57,19 @@ class _RandomWordsState extends State<RandomWords> {
                           .snapToPosition(_controller.snapPositions.first);
                     }
                   },
-                ),
-                snapPositions: const [
-                  SnapPosition(
-                      positionFactor: 0,
-                      snappingCurve: Curves.elasticOut,
-                      snappingDuration: Duration(milliseconds: 750)),
-                  SnapPosition(
-                      positionPixel: 100,
-                      snappingCurve: Curves.elasticOut,
-                      snappingDuration: Duration(milliseconds: 750))
-                ],
-              )
-            : _buildSuggestions());
+                )
+              : null,
+          snapPositions: const [
+            SnapPosition(
+                positionFactor: 0,
+                snappingCurve: Curves.elasticOut,
+                snappingDuration: Duration(milliseconds: 750)),
+            SnapPosition(
+                positionPixel: 100,
+                snappingCurve: Curves.elasticOut,
+                snappingDuration: Duration(milliseconds: 750))
+          ],
+        ));
   }
 
   Widget _buildSuggestions() {
